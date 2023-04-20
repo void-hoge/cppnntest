@@ -39,13 +39,20 @@ public:
 
 template<typename T>
 Images<T>::Images(std::string filename): filename_(filename) {
+	this->ifs = std::ifstream(this->filename_, std::ios::in | std::ios::binary);
+	if (!this->ifs.is_open()) {
+		std::stringstream ss;
+		ss << "Failed to read \"" << this->filename_
+		   << "\"." << std::endl;
+		throw std::runtime_error(ss.str());
+	}
 	this->read_header();
 	this->read_payload();
+	this->ifs.close();
 }
 
 template<typename T>
 Images<T>::~Images() {
-	this->ifs.close();
 }
 
 template<typename T>
@@ -79,13 +86,6 @@ const std::vector<std::vector<std::vector<T>>>& Images<T>::data() const{
 
 template<typename T>
 void Images<T>::read_header() {
-	this->ifs = std::ifstream(this->filename_, std::ios::in | std::ios::binary);
-	if (!this->ifs.is_open()) {
-		std::stringstream ss;
-		ss << "Failed to read \"" << this->filename_
-		   << "\"." << std::endl;
-		throw std::runtime_error(ss.str());
-	}
 	this->ifs.read((char*)&this->ftype_, sizeof(this->ftype_));
 	this->ifs.read((char*)&this->num_, sizeof(this->num_));
 	this->ifs.read((char*)&this->width_, sizeof(this->width_));
@@ -198,6 +198,7 @@ void Labels<T, U>::read() {
 		ifs.read((char*)&tmp, sizeof(tmp));
 		label = tmp;
 	}
+	ifs.close();
 }
 
 } // namespace mnist
