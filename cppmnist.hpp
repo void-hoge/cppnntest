@@ -12,8 +12,6 @@
 
 namespace MNIST{
 
-const std::uint8_t threshold = 128u;
-
 std::uint32_t swapendian(std::uint32_t x) {
 	return x>>24 | (x<<8)&0x00ff0000 | (x>>8)&0x0000ff00 | x<<24;
 }
@@ -27,6 +25,7 @@ private:
 	std::uint32_t num_;
 	std::uint32_t width_;
 	std::uint32_t height_;
+	const std::uint8_t threshold = 128u;
 	std::ifstream ifs;
 	void read_header();
 	void read_payload();
@@ -34,7 +33,9 @@ public:
 	const std::vector<std::vector<std::vector<T>>>& data() const;
 	Images(std::string filename);
 	~Images();
+	void dump(const std::size_t idx, std::ostream& ost=std::cout) const;
 };
+
 
 template<typename T>
 Images<T>::Images(std::string filename): filename_(filename) {
@@ -45,6 +46,30 @@ Images<T>::Images(std::string filename): filename_(filename) {
 template<typename T>
 Images<T>::~Images() {
 	this->ifs.close();
+}
+
+template<typename T>
+void Images<T>::dump(const std::size_t idx, std::ostream& ost) const {
+	for (std::size_t i = 0; i < this->height_; i++) {
+		for (std::size_t j = 0; j < this->width_; j++) {
+			if constexpr(std::is_integral_v<T>) {
+				ost << (this->data_.at(idx)[i][j] < this->threshold ? "  " : "**");
+			}else {
+				ost << (this->data_.at(idx)[i][j] < ((T)this->threshold/255) ? "  " : "**");
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+
+template<>
+void Images<bool>::dump(const std::size_t idx, std::ostream& ost) const {
+	for (std::size_t i = 0; i < this->height_; i++) {
+		for (std::size_t j = 0; j < this->width_; j++) {
+			ost << (this->data_.at(idx)[i][j] ? "**": "  ");
+		}
+		ost << std::endl;
+	}
 }
 
 template<typename T>
@@ -108,7 +133,7 @@ void Images<bool>::read_payload() {
 			for (std::size_t i = 0; i < row.size(); i++) {
 				std::uint8_t tmp;
 				this->ifs.read((char*)&tmp, sizeof(tmp));
-				row[i] = tmp >= threshold;
+				row[i] = tmp >= this->threshold;
 			}
 		}
 	}

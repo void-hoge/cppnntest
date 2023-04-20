@@ -16,7 +16,10 @@ public:
 	std::vector<double> grad_biases;
 	std::vector<double> biases;
 	std::vector<std::vector<double>> weights;
-	Dense(std::size_t input, std::size_t output, ActivationType acttype);
+	Dense(
+		std::size_t input,
+		std::size_t output,
+		ActivationType acttype);
 	std::vector<std::vector<double>> forward(std::vector<std::vector<double>>& data);
 	std::vector<std::vector<double>> backward(std::vector<std::vector<double>>& data);
 };

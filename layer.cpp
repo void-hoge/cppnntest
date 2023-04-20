@@ -5,7 +5,10 @@
 #include <random>
 #include <sstream>
 
-Layer::Dense::Dense(std::size_t input, std::size_t output, ActivationType act):
+Layer::Dense::Dense(
+	std::size_t input,
+	std::size_t output,
+	ActivationType act):
 	biases(output, 0),
 	weights(output, std::vector<double>(input, 0)) {
 	double sigma;
@@ -45,6 +48,7 @@ Layer::Dense::Dense(std::size_t input, std::size_t output, ActivationType act):
 		break;
 	}
 }
+
 
 std::vector<std::vector<double>> Layer::Dense::forward(std::vector<std::vector<double>>& data) {
 	this->lastdata = data;
